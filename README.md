@@ -18,3 +18,7 @@ Changes how looping is calculated so that you're no longer able to desync the st
 ## Artifact Compatibility
 - Ability for Artifact of Honor to speed up elite spawning.
 - Ability for [Artifact of Sanction](https://thunderstore.io/package/William758/ZetArtifacts/) to speed up everything spawning. By default, T2 enemies spawn at stage 3 with sanction.
+
+## Changelog
+- 1.0.1: proper [AccurateEnemies](https://thunderstore.io/package/Moffein/AccurateEnemies/) support
+- 1.0.0: Initial Commit

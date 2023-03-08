@@ -27,7 +27,7 @@ namespace ProperLoop
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.1";
+        public const string PluginVersion = "1.0.2";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -139,7 +139,7 @@ namespace ProperLoop
                                 card.minimumStageCompletions = ScavOnLevel.Value - 1;
                                 card.spawnCard.directorCreditCost = ScavCost.Value;
                             }
-                            else if (card.minimumStageCompletions >= 5) card.minimumStageCompletions += (cat.name == "Champions" ? LoopBossesOnLevel.Value : LoopEnemiesOnLevel.Value) - 5;
+                            else if (card.minimumStageCompletions >= stage) card.minimumStageCompletions = Mathf.Max(0, card.minimumStageCompletions + (cat.name == "Champions" ? LoopBossesOnLevel.Value : LoopEnemiesOnLevel.Value) - 5);
                             cat.cards[j] = card;
                         }
                         orig.categories[i] = cat;
@@ -151,16 +151,16 @@ namespace ProperLoop
                 c.GotoNext(x => x.MatchBgt(out _));
                 c.Emit(OpCodes.Pop);
                 c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldc_I4_1);
                 c.Emit(OpCodes.Ldloc, 12);
                 c.EmitDelegate<Func<ClassicStageInfo.MonsterFamily, int>>(self => StageCheck(self.minimumStageCompletion + 1) ? 1 : 0);
+                c.Emit(OpCodes.Ldc_I4_1);
                 c.GotoNext(x => x.MatchLdfld<ClassicStageInfo.MonsterFamily>(nameof(ClassicStageInfo.MonsterFamily.maximumStageCompletion)));
                 c.GotoNext(x => x.MatchBle(out _));
                 c.Emit(OpCodes.Pop);
                 c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldc_I4_1);
                 c.Emit(OpCodes.Ldloc, 12);
                 c.EmitDelegate<Func<ClassicStageInfo.MonsterFamily, int>>(self => StageCheckMax(self.maximumStageCompletion + 1) ? 1 : 0);
+                c.Emit(OpCodes.Ldc_I4_1);
             };
             IL.RoR2.DirectorCard.IsAvailable += il =>
             {
@@ -169,9 +169,9 @@ namespace ProperLoop
                 c.GotoNext(x => x.MatchClt());
                 c.Emit(OpCodes.Pop);
                 c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldc_I4_1);   
                 c.Emit(OpCodes.Ldarg_0);
                 c.EmitDelegate<Func<DirectorCard, int>>(self => StageCheck(self.minimumStageCompletions + 1) ? 1 : 0);
+                c.Emit(OpCodes.Ldc_I4_1);   
             };
             #region ELITE BS HERE
             Harmony.PatchAll(typeof(PatchLoopGetter));

@@ -15,6 +15,7 @@ using UnityEngine.AddressableAssets;
 using System.Collections.Generic;
 using System;
 using EntityStates.ScavBackpack;
+using System.IO;
 
 namespace ProperLoop
 {
@@ -22,12 +23,13 @@ namespace ProperLoop
     [BepInDependency(EliteAPI.PluginGUID)]
     [BepInDependency("com.Moffein.AccurateEnemies", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.TPDespair.ZetArtifacts", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.SoftDependency)]
     public class Main : BaseUnityPlugin
     {
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.2";
+        public const string PluginVersion = "1.0.4";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -80,8 +82,12 @@ namespace ProperLoop
             EliteDisables = Config.Bind("General", "Elite Disables", "", "List of EliteDef names to blacklist, separated by comma. Check log for names.");
 
             if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
-
-            Run.onRunStartGlobal += _ => { loops = 0; stage = 0; Opening.maxItemDropCount = 1; };
+            On.RoR2.Run.Start += (orig, self) =>
+            {
+                loops = 0; stage = 0; Opening.maxItemDropCount = 1;
+                orig(self);
+            };
+            if (Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ProperSave")) ProperlySave();
             IL.RoR2.TeleporterInteraction.Start += il =>
             {
                 ILCursor c = new(il);
@@ -106,7 +112,7 @@ namespace ProperLoop
                     stage = 0;
                     loops++;
                 }
-                Opening.maxItemDropCount = loops * 5 + stage + 1;
+                Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
             };
             On.RoR2.SceneDirector.PlaceTeleporter += (orig, self) =>
             {
@@ -139,7 +145,7 @@ namespace ProperLoop
                                 card.minimumStageCompletions = ScavOnLevel.Value - 1;
                                 card.spawnCard.directorCreditCost = ScavCost.Value;
                             }
-                            else if (card.minimumStageCompletions >= stage) card.minimumStageCompletions = Mathf.Max(0, card.minimumStageCompletions + (cat.name == "Champions" ? LoopBossesOnLevel.Value : LoopEnemiesOnLevel.Value) - 5);
+                            else if (card.minimumStageCompletions > stage) card.minimumStageCompletions = Mathf.Max(0, card.minimumStageCompletions + (cat.name == "Champions" ? LoopBossesOnLevel.Value : LoopEnemiesOnLevel.Value) - 6);
                             cat.cards[j] = card;
                         }
                         orig.categories[i] = cat;
@@ -316,19 +322,34 @@ namespace ProperLoop
             if (onLevel == 0) return false;
             if (Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetArtifacts") && EarlifactActive()) multiplier *= SanctionMultiplier.Value;
             onLevel = Mathf.CeilToInt(onLevel * multiplier) - 1;
-            return loops > onLevel / 5 || (loops == onLevel / 5 && stage >= onLevel % 5);
+            return loops > onLevel / Run.stagesPerLoop || (loops == onLevel / Run.stagesPerLoop && stage >= onLevel % Run.stagesPerLoop);
         }
         public static bool StageCheckMax(int onLevel, float multiplier = 1)
         {
             if (onLevel == 0) return false;
             if (Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetArtifacts") && EarlifactActive()) multiplier *= SanctionMultiplier.Value;
             onLevel = Mathf.CeilToInt(onLevel * multiplier) - 1;
-            return loops < onLevel / 5 || (loops == onLevel / 5 && stage < onLevel % 5);
+            return loops < onLevel / Run.stagesPerLoop || (loops == onLevel / Run.stagesPerLoop && stage < onLevel % Run.stagesPerLoop);
         }
 
         public static bool EarlifactActive()
         {
             return RunArtifactManager.instance.IsArtifactEnabled(TPDespair.ZetArtifacts.ZetEarlifact.ArtifactDef);
+        }
+
+        public static string savePath = System.IO.Path.Combine(Application.persistentDataPath, "ProperSave", "Saves") + "\\" + PluginName + ".csv";
+        public static void ProperlySave()
+        {
+            ProperSave.SaveFile.OnGatherSaveData += _ => save(savePath);
+            if (File.Exists(savePath)) ProperSave.Loading.OnLoadingEnded += _ => load(savePath);
+            void save(string path) => File.WriteAllText(path, $"loops,{loops}\nstage,{stage}");
+            void load(string path)
+            {
+                string[][] lines = File.ReadAllLines(path).ToList().ConvertAll(x => x.Split(',')).ToArray();
+                loops = int.Parse(lines.FirstOrDefault(x => x[0] == "loops")[1]);
+                stage = int.Parse(lines.FirstOrDefault(x => x[0] == "stage")[1]);
+                Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
+            }
         }
     }
 }

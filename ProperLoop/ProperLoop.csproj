@@ -54,6 +54,9 @@
 	  <Reference Include="MMHOOK_RoR2">
 	    <HintPath>..\..\libs\MMHOOK_RoR2-nstrip.dll</HintPath>
 	  </Reference>
+	  <Reference Include="ProperSave">
+	    <HintPath>..\..\libs\ProperSave-nstrip.dll</HintPath>
+	  </Reference>
 	  <Reference Include="R2API.Core">
 	    <HintPath>..\..\libs\R2API.Core-nstrip.dll</HintPath>
 	  </Reference>

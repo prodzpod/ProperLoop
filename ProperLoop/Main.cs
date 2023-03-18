@@ -29,7 +29,7 @@ namespace ProperLoop
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.4";
+        public const string PluginVersion = "1.0.6";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -91,14 +91,9 @@ namespace ProperLoop
             IL.RoR2.TeleporterInteraction.Start += il =>
             {
                 ILCursor c = new(il);
-                c.GotoNext(x => x.MatchStloc(2));
+                c.GotoNext(MoveType.After, x => x.MatchLdfld<Run>(nameof(Run.stageClearCount)));
                 c.Emit(OpCodes.Pop);
-                c.EmitDelegate(() => stage);
-                c.GotoNext(x => x.MatchBle(out _));
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldc_I4_0);
-                c.EmitDelegate(() => loops);
+                c.EmitDelegate(() => loops * Run.stagesPerLoop + stage);
             };
             TP = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscTeleporter");
             lunarTP = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscLunarTeleporter");
@@ -150,7 +145,7 @@ namespace ProperLoop
                         }
                         orig.categories[i] = cat;
                     }
-                    Log.LogDebug("Enemy Stage Completion\n" + orig.categories.Join(x => x.cards.Join(y => y.spawnCard.name + $" ({y.minimumStageCompletions})"), "\n"));
+                    Log.LogDebug("Enemy Stage Completion\n" + orig.categories.Join(x => x.cards.Join(y => (y.spawnCard?.name ?? "Null") + $" ({y.minimumStageCompletions})"), "\n"));
                     return orig;
                 });
                 c.GotoNext(x => x.MatchLdfld<ClassicStageInfo.MonsterFamily>(nameof(ClassicStageInfo.MonsterFamily.minimumStageCompletion)));

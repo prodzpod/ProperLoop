@@ -99,6 +99,9 @@
 	  <Reference Include="UnityEngine.ParticleSystemModule">
 	    <HintPath>..\..\libs\UnityEngine.ParticleSystemModule-nstrip.dll</HintPath>
 	  </Reference>
+	  <Reference Include="WellRoundedBalance">
+	    <HintPath>..\..\libs\WellRoundedBalance-nstrip.dll</HintPath>
+	  </Reference>
 	  <Reference Include="ZetArtifacts">
 	    <HintPath>..\..\libs\ZetArtifacts-nstrip.dll</HintPath>
 	  </Reference>

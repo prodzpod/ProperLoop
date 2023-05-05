@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System;
 using EntityStates.ScavBackpack;
 using System.IO;
+using static ProperLoop.WRB;
 
 namespace ProperLoop
 {
@@ -24,12 +25,13 @@ namespace ProperLoop
     [BepInDependency("com.Moffein.AccurateEnemies", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.TPDespair.ZetArtifacts", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("BALLS.WellRoundedBalance", BepInDependency.DependencyFlags.SoftDependency)]
     public class Main : BaseUnityPlugin
     {
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.6";
+        public const string PluginVersion = "1.0.7";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -81,10 +83,15 @@ namespace ProperLoop
             SanctionMultiplier = Config.Bind("General", "Artifact of Sanction Stage Multiplier", 0.5f, "Epic zetartifacts compat");
             EliteDisables = Config.Bind("General", "Elite Disables", "", "List of EliteDef names to blacklist, separated by comma. Check log for names.");
 
+            if (Chainloader.PluginInfos.ContainsKey("BALLS.WellRoundedBalance"))
+            {
+                Harmony.PatchAll(typeof(PatchWRBDirector));
+                Harmony.PatchAll(typeof(PatchWRBSBag));
+            }
             if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
             On.RoR2.Run.Start += (orig, self) =>
             {
-                loops = 0; stage = 0; Opening.maxItemDropCount = 1;
+                loops = 0; stage = 0; if (ScavItemCountScale.Value) Opening.maxItemDropCount = 1;
                 orig(self);
             };
             if (Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ProperSave")) ProperlySave();
@@ -107,7 +114,7 @@ namespace ProperLoop
                     stage = 0;
                     loops++;
                 }
-                Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
+                if (ScavItemCountScale.Value) Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
             };
             On.RoR2.SceneDirector.PlaceTeleporter += (orig, self) =>
             {
@@ -336,15 +343,8 @@ namespace ProperLoop
         public static void ProperlySave()
         {
             ProperSave.SaveFile.OnGatherSaveData += _ => save(savePath);
-            if (File.Exists(savePath)) ProperSave.Loading.OnLoadingEnded += _ => load(savePath);
+            if (File.Exists(savePath)) J.load();
             void save(string path) => File.WriteAllText(path, $"loops,{loops}\nstage,{stage}");
-            void load(string path)
-            {
-                string[][] lines = File.ReadAllLines(path).ToList().ConvertAll(x => x.Split(',')).ToArray();
-                loops = int.Parse(lines.FirstOrDefault(x => x[0] == "loops")[1]);
-                stage = int.Parse(lines.FirstOrDefault(x => x[0] == "stage")[1]);
-                Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
-            }
         }
     }
 }

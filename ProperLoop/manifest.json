@@ -1,6 +1,6 @@
 {
 	"name": "ProperLoop",
-	"version_number": "1.0.6",
+	"version_number": "1.0.7",
 	"website_url": "https://github.com/prodzpod/ProperLoop",
 	"description": "Scavs will spawn on actual loops. also some enemy config.",
 	"dependencies": [

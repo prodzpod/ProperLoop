@@ -1,4 +1,5 @@
-﻿using EntityStates.ScavBackpack;
+﻿/*
+using EntityStates.ScavBackpack;
 using HarmonyLib;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -37,3 +38,4 @@ namespace ProperLoop
         }
     }
 }
+*/

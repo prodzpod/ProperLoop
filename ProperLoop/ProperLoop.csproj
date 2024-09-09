@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>netstandard2.1</TargetFramework>
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
@@ -18,32 +18,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="AccurateEnemies">
-	    <HintPath>..\..\libs\AccurateEnemies-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Aetherium">
-	    <HintPath>..\..\libs\Aetherium-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="BubbetsItems">
-	    <HintPath>..\..\libs\BubbetsItems-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="BulwarksHaunt">
-	    <HintPath>..\..\libs\BulwarksHaunt-nstrip.dll</HintPath>
-	  </Reference>
 	  <Reference Include="com.unity.multiplayer-hlapi.Runtime">
 	    <HintPath>..\..\libs\com.unity.multiplayer-hlapi.Runtime-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="ConsistentStageFeatures">
-	    <HintPath>..\..\libs\ConsistentStageFeatures-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="EvenFasterBossWait">
-	    <HintPath>..\..\libs\EvenFasterBossWait-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="FblAssembly">
-	    <HintPath>..\..\libs\FblAssembly-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="FHCSharp">
-	    <HintPath>..\..\libs\FHCSharp-nstrip.dll</HintPath>
 	  </Reference>
 	  <Reference Include="HGCSharpUtils">
 	    <HintPath>..\..\libs\HGCSharpUtils-nstrip.dll</HintPath>
@@ -81,9 +57,6 @@
 	  <Reference Include="RoR2BepInExPack">
 	    <HintPath>..\..\libs\RoR2BepInExPack-nstrip.dll</HintPath>
 	  </Reference>
-	  <Reference Include="ShrineOfRepair">
-	    <HintPath>..\..\libs\ShrineOfRepair-nstrip.dll</HintPath>
-	  </Reference>
 	  <Reference Include="Unity.Addressables">
 	    <HintPath>..\..\libs\Unity.Addressables-nstrip.dll</HintPath>
 	  </Reference>
@@ -98,9 +71,6 @@
 	  </Reference>
 	  <Reference Include="UnityEngine.ParticleSystemModule">
 	    <HintPath>..\..\libs\UnityEngine.ParticleSystemModule-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="WellRoundedBalance">
-	    <HintPath>..\..\libs\WellRoundedBalance-nstrip.dll</HintPath>
 	  </Reference>
 	  <Reference Include="ZetArtifacts">
 	    <HintPath>..\..\libs\ZetArtifacts-nstrip.dll</HintPath>

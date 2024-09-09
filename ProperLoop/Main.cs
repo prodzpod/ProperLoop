@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System;
 using EntityStates.ScavBackpack;
 using System.IO;
-using static ProperLoop.WRB;
+// using static ProperLoop.WRB;
 
 namespace ProperLoop
 {
@@ -82,18 +82,21 @@ namespace ProperLoop
             HonorMultiplier = Config.Bind("General", "Artifact of Honor Stage Multiplier", 1f, "Rounded up.");
             SanctionMultiplier = Config.Bind("General", "Artifact of Sanction Stage Multiplier", 0.5f, "Epic zetartifacts compat");
             EliteDisables = Config.Bind("General", "Elite Disables", "", "List of EliteDef names to blacklist, separated by comma. Check log for names.");
-
+            /*
             if (Chainloader.PluginInfos.ContainsKey("BALLS.WellRoundedBalance"))
             {
                 Harmony.PatchAll(typeof(PatchWRBDirector));
                 Harmony.PatchAll(typeof(PatchWRBSBag));
             }
+            */
+            /*
             if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
             On.RoR2.Run.Start += (orig, self) =>
             {
                 loops = 0; stage = 0; if (ScavItemCountScale.Value) Opening.maxItemDropCount = 1;
                 orig(self);
             };
+            */
             if (Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ProperSave")) ProperlySave();
             IL.RoR2.TeleporterInteraction.Start += il =>
             {
@@ -305,6 +308,13 @@ namespace ProperLoop
                 });
             };
             #endregion
+            On.RoR2.Inventory.SetEquipmentIndex += (orig, self, equipmentIndex) =>
+            {
+                CharacterMaster cm = self.gameObject.GetComponent<CharacterMaster>();
+                Log.LogDebug("setting equipment for:" + cm.name);
+                if (cm.name == "ArtifactShellMaster" && equipmentIndex == RoR2Content.Equipment.AffixLunar.equipmentIndex) return;
+                orig(self, equipmentIndex);
+            };
         }
 
         [HarmonyPatch]

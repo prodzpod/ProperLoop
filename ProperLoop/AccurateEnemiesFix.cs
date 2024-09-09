@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿/*
+using HarmonyLib;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -58,3 +59,4 @@ namespace ProperLoop
         [HarmonyPatch] public class VultureFix { public static void ILManipulator(ILContext il) => Patch(il); public static MethodBase TargetMethod() => GetMethod(typeof(Vulture)); }
     }
 }
+*/

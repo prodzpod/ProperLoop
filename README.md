@@ -20,6 +20,7 @@ Changes how looping is calculated so that you're no longer able to desync the st
 - Ability for [Artifact of Sanction](https://thunderstore.io/package/William758/ZetArtifacts/) to speed up everything spawning. By default, T2 enemies spawn at stage 3 with sanction.
 
 ## Changelog
+- 1.0.8: made to work with SotS, also reliquary no longer is perfected
 - 1.0.7: [WRB](https://thunderstore.io/package/TheBestAssociatedLargelyLudicrousSillyheadGroup/WellRoundedBalance/) compat, fixed crash without propersave
 - 1.0.6: Fixed celestial portal not appearing
 - 1.0.5: Bugfix

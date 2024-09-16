@@ -18,6 +18,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="AccurateEnemies">
+	    <HintPath>..\..\libs\AccurateEnemies-nstrip.dll</HintPath>
+	  </Reference>
 	  <Reference Include="com.unity.multiplayer-hlapi.Runtime">
 	    <HintPath>..\..\libs\com.unity.multiplayer-hlapi.Runtime-nstrip.dll</HintPath>
 	  </Reference>

@@ -89,14 +89,12 @@ namespace ProperLoop
                 Harmony.PatchAll(typeof(PatchWRBSBag));
             }
             */
-            /*
             if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
             On.RoR2.Run.Start += (orig, self) =>
             {
                 loops = 0; stage = 0; if (ScavItemCountScale.Value) Opening.maxItemDropCount = 1;
                 orig(self);
             };
-            */
             if (Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ProperSave")) ProperlySave();
             IL.RoR2.TeleporterInteraction.Start += il =>
             {

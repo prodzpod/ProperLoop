@@ -31,7 +31,7 @@ namespace ProperLoop
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.7";
+        public const string PluginVersion = "1.0.12";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -89,7 +89,7 @@ namespace ProperLoop
                 Harmony.PatchAll(typeof(PatchWRBSBag));
             }
             */
-            if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
+            // if (Chainloader.PluginInfos.ContainsKey("com.Moffein.AccurateEnemies")) AccurateEnemiesFix.Init();  
             On.RoR2.Run.Start += (orig, self) =>
             {
                 loops = 0; stage = 0; if (ScavItemCountScale.Value) Opening.maxItemDropCount = 1;
@@ -124,8 +124,9 @@ namespace ProperLoop
             };
             IL.RoR2.Achievements.LoopOnceAchievement.Check += il =>
             {
+                // ???
                 ILCursor c = new(il);
-                c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<Run>("get_" + nameof(Run.loopClearCount)));
+                c.GotoNext(x => x.MatchLdcI4(0));
                 c.Emit(OpCodes.Pop);
                 c.EmitDelegate(() => loops);
             };
@@ -156,20 +157,6 @@ namespace ProperLoop
                     Log.LogDebug("Enemy Stage Completion\n" + orig.categories.Join(x => x.cards.Join(y => (y.spawnCard?.name ?? "Null") + $" ({y.minimumStageCompletions})"), "\n"));
                     return orig;
                 });
-                c.GotoNext(x => x.MatchLdfld<ClassicStageInfo.MonsterFamily>(nameof(ClassicStageInfo.MonsterFamily.minimumStageCompletion)));
-                c.GotoNext(x => x.MatchBgt(out _));
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldloc, 12);
-                c.EmitDelegate<Func<ClassicStageInfo.MonsterFamily, int>>(self => StageCheck(self.minimumStageCompletion + 1) ? 1 : 0);
-                c.Emit(OpCodes.Ldc_I4_1);
-                c.GotoNext(x => x.MatchLdfld<ClassicStageInfo.MonsterFamily>(nameof(ClassicStageInfo.MonsterFamily.maximumStageCompletion)));
-                c.GotoNext(x => x.MatchBle(out _));
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldloc, 12);
-                c.EmitDelegate<Func<ClassicStageInfo.MonsterFamily, int>>(self => StageCheckMax(self.maximumStageCompletion + 1) ? 1 : 0);
-                c.Emit(OpCodes.Ldc_I4_1);
             };
             IL.RoR2.DirectorCard.IsAvailable += il =>
             {
@@ -180,18 +167,37 @@ namespace ProperLoop
                 c.Emit(OpCodes.Pop);
                 c.Emit(OpCodes.Ldarg_0);
                 c.EmitDelegate<Func<DirectorCard, int>>(self => StageCheck(self.minimumStageCompletions + 1) ? 1 : 0);
-                c.Emit(OpCodes.Ldc_I4_1);   
+                c.Emit(OpCodes.Ldc_I4_1);
+            };
+            IL.RoR2.FamilyDirectorCardCategorySelection.IsAvailable += il =>
+            {
+                ILCursor c = new(il);
+                c.GotoNext(x => x.MatchLdfld<FamilyDirectorCardCategorySelection>(nameof(FamilyDirectorCardCategorySelection.minimumStageCompletion)));
+                c.GotoNext(x => x.MatchBgt(out _));
+                c.Emit(OpCodes.Pop);
+                c.Emit(OpCodes.Pop);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Func<FamilyDirectorCardCategorySelection, int>>(self => StageCheck(self.minimumStageCompletion + 1) ? 0 : 2);
+                c.Emit(OpCodes.Ldc_I4_1);
+                c.GotoNext(x => x.MatchLdfld<FamilyDirectorCardCategorySelection>(nameof(FamilyDirectorCardCategorySelection.maximumStageCompletion)));
+                c.GotoNext(x => x.MatchCgt());
+                c.Emit(OpCodes.Pop);
+                c.Emit(OpCodes.Pop);
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Func<FamilyDirectorCardCategorySelection, int>>(self => StageCheckMax(self.maximumStageCompletion + 1) ? 0 : 2);
+                c.Emit(OpCodes.Ldc_I4_1);
             };
             #region ELITE BS HERE
             Harmony.PatchAll(typeof(PatchLoopGetter));
+            /*
             RoR2Application.onLoad += () =>
             {
                 if (_thisInitialized) return;
                 Log.LogDebug("EliteAPI, amarite?");
                 List<string> blacklist = EliteDisables.Value.Split(',').ToList().ConvertAll(x => x.Trim());
-                string[] T1s = new[] { "edLightning", "edIce", "edFire", "edEarth" };
-                string[] T1Honors = new[] { "edLightningHonor", "edIceHonor", "edFireHonor", "edEarthHonor" };
-                string[] T2s = new[] { "edPoison", "edHaunted" };
+                string[] T1s = ["edLightning", "edIce", "edFire", "edEarth"];
+                string[] T1Honors = ["edLightningHonor", "edIceHonor", "edFireHonor", "edEarthHonor"];
+                string[] T2s = ["edPoison", "edHaunted"];
                 float _T1Cost = baseEliteCostMultiplier * PerfectedCost.Value;
                 List<EliteTierDef> defaultTiers = new();
                 for (var i = 0; i < eliteTiers.Length; i++)
@@ -259,7 +265,7 @@ namespace ProperLoop
                         if (!eliteTierDef.CanSelect(self.currentMonsterCard.spawnCard.eliteRules))
                         {
                             if (cvDirectorCombatEnableInternalLogs.value) 
-                                Debug.LogFormat("Elite tier index {0} is unavailable", new object[] { i });
+                                Debug.LogFormat("Elite tier index {0} is unavailable", [i]);
                         }
                         else
                         {
@@ -269,10 +275,10 @@ namespace ProperLoop
                                 end = i + 1;
                                 weight = eliteTierDef.costMultiplier;
                                 if (cvDirectorCombatEnableInternalLogs.value)
-                                    Debug.LogFormat("Found valid elite tier index {0}", new object[] { i });
+                                    Debug.LogFormat("Found valid elite tier index {0}", [i]);
                             }
                             else if (cvDirectorCombatEnableInternalLogs.value)
-                                Debug.LogFormat("Elite tier index {0} is too expensive ({1}/{2})", new object[] { i, num, self.monsterCredit });
+                                Debug.LogFormat("Elite tier index {0} is too expensive ({1}/{2})", [i, num, self.monsterCredit]);
                         }
                     }
                     if (end > 1)
@@ -305,6 +311,7 @@ namespace ProperLoop
                     return def;
                 });
             };
+            */
             #endregion
             On.RoR2.Inventory.SetEquipmentIndex += (orig, self, equipmentIndex) =>
             {

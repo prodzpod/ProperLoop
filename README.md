@@ -20,6 +20,8 @@ Changes how looping is calculated so that you're no longer able to desync the st
 - Ability for [Artifact of Sanction](https://thunderstore.io/package/William758/ZetArtifacts/) to speed up everything spawning. By default, T2 enemies spawn at stage 3 with sanction.
 
 ## Changelog
+- 1.0.12: fixed for sots 2.0, fixed artifact of honor
+- 1.0.11: fixed some kind of nre happening (i dont think any gameplay was affected??)
 - 1.0.10: reenabled [AccurateEnemies](https://thunderstore.io/package/Moffein/AccurateEnemies/) support
 - 1.0.9: fix discord images
 - 1.0.8: made to work with SotS, also reliquary no longer is perfected

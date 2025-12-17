@@ -17,7 +17,7 @@ namespace ProperLoop
             {
                 if (Main.ScavItemCountScale.Value)
                 {
-                    Opening.maxItemDropCount = Main.loops * RoR2.Run.stagesPerLoop + Main.stage + 1;
+                    Opening.maxItemDropCount = Main.loops * RoR2.5 + Main.stage + 1;
                     orig(self);
                     return false;
                 } // bad wrb

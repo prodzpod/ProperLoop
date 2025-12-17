@@ -31,7 +31,7 @@ namespace ProperLoop
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "prodzpod";
         public const string PluginName = "ProperLoop";
-        public const string PluginVersion = "1.0.12";
+        public const string PluginVersion = "1.0.13";
         public static ManualLogSource Log;
         public static PluginInfo pluginInfo;
         public static Harmony Harmony;
@@ -99,9 +99,9 @@ namespace ProperLoop
             IL.RoR2.TeleporterInteraction.Start += il =>
             {
                 ILCursor c = new(il);
-                c.GotoNext(MoveType.After, x => x.MatchLdfld<Run>(nameof(Run.stageClearCount)));
+                c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<Run>("get_" + nameof(Run.stageClearCountInCurrentLoop)));
                 c.Emit(OpCodes.Pop);
-                c.EmitDelegate(() => loops * Run.stagesPerLoop + stage);
+                c.EmitDelegate(() => stage);
             };
             TP = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscTeleporter");
             lunarTP = LegacyResourcesAPI.Load<InteractableSpawnCard>("SpawnCards/InteractableSpawnCard/iscLunarTeleporter");
@@ -115,11 +115,11 @@ namespace ProperLoop
                     stage = 0;
                     loops++;
                 }
-                if (ScavItemCountScale.Value) Opening.maxItemDropCount = loops * Run.stagesPerLoop + stage + 1;
+                if (ScavItemCountScale.Value) Opening.maxItemDropCount = loops * 5 + stage + 1;
             };
             On.RoR2.SceneDirector.PlaceTeleporter += (orig, self) =>
             {
-                if (self.teleporterSpawnCard != null) self.teleporterSpawnCard = (stage == Run.stagesPerLoop - 1) ? lunarTP : TP;
+                if (self.teleporterSpawnCard != null) self.teleporterSpawnCard = (stage == 5 - 1) ? lunarTP : TP;
                 orig(self);
             };
             IL.RoR2.Achievements.LoopOnceAchievement.Check += il =>
@@ -313,12 +313,12 @@ namespace ProperLoop
             };
             */
             #endregion
-            On.RoR2.Inventory.SetEquipmentIndex += (orig, self, equipmentIndex) =>
+            On.RoR2.Inventory.SetEquipmentIndexForSlot_EquipmentIndex_uint_uint += (orig, self, equipmentIndex, a, b) =>
             {
                 CharacterMaster cm = self.gameObject.GetComponent<CharacterMaster>();
                 Log.LogDebug("setting equipment for:" + cm.name);
                 if (cm.name == "ArtifactShellMaster" && equipmentIndex == RoR2Content.Equipment.AffixLunar.equipmentIndex) return;
-                orig(self, equipmentIndex);
+                orig(self, equipmentIndex, a, b);
             };
         }
 
@@ -339,14 +339,14 @@ namespace ProperLoop
             if (onLevel == 0) return false;
             if (Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetArtifacts") && EarlifactActive()) multiplier *= SanctionMultiplier.Value;
             onLevel = Mathf.CeilToInt(onLevel * multiplier) - 1;
-            return loops > onLevel / Run.stagesPerLoop || (loops == onLevel / Run.stagesPerLoop && stage >= onLevel % Run.stagesPerLoop);
+            return loops > onLevel / 5 || (loops == onLevel / 5 && stage >= onLevel % 5);
         }
         public static bool StageCheckMax(int onLevel, float multiplier = 1)
         {
             if (onLevel == 0) return false;
             if (Chainloader.PluginInfos.ContainsKey("com.TPDespair.ZetArtifacts") && EarlifactActive()) multiplier *= SanctionMultiplier.Value;
             onLevel = Mathf.CeilToInt(onLevel * multiplier) - 1;
-            return loops < onLevel / Run.stagesPerLoop || (loops == onLevel / Run.stagesPerLoop && stage < onLevel % Run.stagesPerLoop);
+            return loops < onLevel / 5 || (loops == onLevel / 5 && stage < onLevel % 5);
         }
 
         public static bool EarlifactActive()
